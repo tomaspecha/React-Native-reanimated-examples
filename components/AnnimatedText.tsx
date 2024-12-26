@@ -1,46 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+// Props for defining sentences, typing delay, speed, and optional style
 type AnimatedTypewriterTextProps = {
-    sentences: string[];
-    delay: number;
-    speed: number;
-    style?: object;
+    sentences: string[]; // Sentences to display
+    delay: number; // Delay before the next sentence
+    speed: number; // Typing speed
+    style?: object; // Optional container style
 };
 
-const AnimatedTypewriterText: React.FC<AnimatedTypewriterTextProps> = ({ sentences, delay, speed, style }) => {
-    const [animatedText, setAnimatedText] = useState('');
-    const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
-    const [showCursor, setShowCursor] = useState(true);
+const AnimatedTypewriterText: React.FC<AnimatedTypewriterTextProps> = ({
+                                                                           sentences,
+                                                                           delay,
+                                                                           speed,
+                                                                           style,
+                                                                       }) => {
+    const [animatedText, setAnimatedText] = useState(''); // Current text being typed
+    const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0); // Current sentence index
+    const [showCursor, setShowCursor] = useState(true); // Cursor visibility
 
+    // Starts typing when the sentence index changes
     useEffect(() => {
         if (currentSentenceIndex < sentences.length) {
-            startTypingAnimation();
-        } else {
-            setCurrentSentenceIndex(0);
+            startTypingAnimation(sentences[currentSentenceIndex]);
         }
     }, [currentSentenceIndex]);
 
+    // Toggles the blinking cursor
     useEffect(() => {
         const cursorInterval = setInterval(() => {
             setShowCursor((prevState) => !prevState);
         }, 500);
-        return () => clearInterval(cursorInterval);
+        return () => clearInterval(cursorInterval); // Clear interval on unmount
     }, []);
 
-    const startTypingAnimation = () => {
-        const currentSentence = sentences[currentSentenceIndex];
+    // Handles the typing effect for each sentence
+    const startTypingAnimation = (sentence: string) => {
         let index = 0;
+        setAnimatedText(''); // Clear previous text
 
         const typingInterval = setInterval(() => {
-            setAnimatedText((prevState) => prevState + currentSentence[index]);
+            setAnimatedText((prevText) => prevText + sentence[index]); // Add one character
             index++;
 
-            if (index === currentSentence.length) {
-                clearInterval(typingInterval);
+            if (index >= sentence.length) { // If the sentence is fully typed
+                clearInterval(typingInterval); // Stop typing
                 setTimeout(() => {
-                    setCurrentSentenceIndex((prevState) => prevState + 1);
-                    setAnimatedText('');
+                    // Move to the next sentence or restart
+                    setCurrentSentenceIndex((prevIndex) =>
+                        prevIndex + 1 < sentences.length ? prevIndex + 1 : 0
+                    );
                 }, delay);
             }
         }, speed);
@@ -48,8 +57,10 @@ const AnimatedTypewriterText: React.FC<AnimatedTypewriterTextProps> = ({ sentenc
 
     return (
         <View style={style}>
-            <Text style={styles.text}>{animatedText}</Text>
-            {showCursor && <Text style={styles.cursor}>|</Text>}
+            <Text style={styles.text}>
+                {animatedText}
+                {showCursor && <Text style={styles.cursor}>|</Text>} {/* Show cursor */}
+            </Text>
         </View>
     );
 };
@@ -61,43 +72,43 @@ const AnimatedTyping: React.FC = () => {
                 sentences={[
                     'Hi, I am Tomas Pecha.',
                     'I am a passionate software developer.',
-                    'Crafting intuitive and dynamic user experiences.',
-                    'Let\'s create something amazing together!',
-                    'Stay inspired and keep learning!'
+                    ' Crafting intuitive and dynamic user experiences.',
+                    ' Let me show you something amazing!',
+                    ' Stay inspired and keep learning!',
+                    ' Hopefully these examples help you create something cool.',
                 ]}
-                delay={1000}
-                speed={60}
+                delay={1000} // Delay before next sentence
+                speed={60} // Typing speed
                 style={styles.textContainer}
             />
         </View>
     );
 };
 
+// Component styles
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#1e1e2f', // Modern dark background
+        flex: 1, // Full-screen layout
+        justifyContent: 'center', // Center vertically
+        alignItems: 'center', // Center horizontally
+        backgroundColor: '#1e1e2f', // Dark background
     },
     textContainer: {
         alignItems: 'center',
-        marginTop: 20,
-        paddingHorizontal: 20,
+        marginTop: 20, // Top margin
+        paddingHorizontal: 20, // Horizontal padding
     },
     text: {
-        fontSize: 20,
-        color: '#e0e0e0', // Light text for better readability
-        textAlign: 'center',
-        fontFamily: 'Helvetica', // Clean and modern font
+        fontSize: 20, // Font size
+        color: '#e0e0e0', // Light color for readability
+        textAlign: 'center', // Center align text
+        fontFamily: 'Helvetica', // Clean font style
     },
     cursor: {
-        fontSize: 20,
-        color: '#e0e0e0',
-        opacity: 0.7,
-        position: 'absolute',
-        right: -5,
+        fontSize: 20, // Cursor font size
+        color: '#e0e0e0', // Cursor color
+        opacity: 0.7, // Slightly transparent cursor
     },
 });
 
-export default AnimatedTyping;
+export default AnimatedTyping;g;
